@@ -13,13 +13,17 @@ from langchain.chains import create_retrieval_chain
 
 app = FastAPI()
 
+
 class QueryRequest(BaseModel):
     question: str
+
 
 folder_path = "products/"
 
 embedding_model_name = "sentence-transformers/all-mpnet-base-v2"
 llm_model_name = "deepseek-r1:1.5b"
+# llm_model_name = "llama3.2:1b"
+
 
 def load_documents_from_folder(folder_path):
     documents = []
@@ -31,12 +35,13 @@ def load_documents_from_folder(folder_path):
             documents.extend(docs)
     return documents
 
+
 docs = load_documents_from_folder(folder_path)
 
 embedder = HuggingFaceEmbeddings(
     model_name=embedding_model_name,
-    model_kwargs={'device': 'cpu'},
-    encode_kwargs={'normalize_embeddings': False}
+    model_kwargs={"device": "cpu"},
+    encode_kwargs={"normalize_embeddings": False},
 )
 
 text_splitter = SemanticChunker(embedder)
@@ -93,19 +98,29 @@ async def get_form():
     """
     return HTMLResponse(content=html_content)
 
+
 @app.post("/api/query")
 async def answer_query(query: QueryRequest):
     try:
         response = rag_chain.invoke({"input": query.question})["answer"]
         return {"answer": response.split("</think>")[1].strip()}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing the query: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error processing the query: {str(e)}"
+        )
+
 
 @app.post("/query", response_class=HTMLResponse)
 async def answer_query(query: str = Form(...)):
     try:
         response = rag_chain.invoke({"input": query})["answer"]
-        clean_response = response.split("</think>")[1].strip() if "</think>" in response else response.strip()
+        clean_response = (
+            response.split("</think>")[1].strip()
+            if "</think>" in response
+            else response.strip()
+        )
         return f"<h3>Question: {query}</h2><h3>Answer: {clean_response}</h2>"
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing the query: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error processing the query: {str(e)}"
+        )
