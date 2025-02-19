@@ -1,4 +1,6 @@
-# Use your own data with the power of an LLM
+# LLM Augmentation
+
+Use your own data with the power of an LLM
 
 ## RAG (Retrieval Augmented Generation)
 Way to add data to an llm model without retraining it. needed when llm model has a cutoff date or for using sensitive data.
@@ -7,7 +9,7 @@ Way to add data to an llm model without retraining it. needed when llm model has
 A format of data which holds semantic information.
 
 ## Semantic Search
-Way to identiify things which are similar in meaning, not in the characters. eg: dog ~= cat; dog !~= dot.
+Way to identiify things which are similar in meaning, not in the characters. eg: dog is similar to cat; dog is not similar to dot.
 
 ## Useful commands for setup
 ```
